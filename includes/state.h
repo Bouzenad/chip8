@@ -9,6 +9,9 @@
 // Number of general purpose registers
 #define GENERAL_REGS_NUMBER 16
 
+// Maximum possible number of addresses that can be pushed into the stack
+#define MAX_STACK_DEPTH 16
+
 // Dimensions of CHIP-8's monochrome display
 #define DISPLAY_HEIGHT 32
 #define DISPLAY_WIDTH 64
@@ -29,21 +32,12 @@ typedef struct registers{
 	uint8_t sound_register;
 } registers;
 
-// Struct for storing RAM data
-typedef struct memory {
-	uint8_t bytes[MEMORY_SIZE];
-} memory;
-
-// Struct for storing display data
-typedef struct display {
-	uint8_t frame[DISPLAY_HEIGHT][DISPLAY_WIDTH];
-} display;
-
-// Struct for storing the system's general state, includes registers, memory, and display
+// Struct for storing the system's general state, includes registers, memory, stack, and display
 typedef struct system_state {
 	registers registers;
-	memory memory;
-	display display;
+	uint8_t memory[MEMORY_SIZE];
+	uint8_t display[DISPLAY_HEIGHT][DISPLAY_WIDTH];
+	uint16_t stack[MAX_STACK_DEPTH];
 } system_state;
 
 // Takes in a pointer for a system_state and returns an initialized state (all data zeroed out, except memory, which will be filled with font data (TO BE DONE))
