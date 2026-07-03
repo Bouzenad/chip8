@@ -3,10 +3,12 @@
 
 #include <stdint.h>
 
-// Type for storing a 16-bit opcode, using this instead of uint16_t for clarity's sake
+// Type for storing a 16-bit opcode, using this instead of uint16_t for
+// clarity's sake
 typedef uint16_t opcode_t;
 
-// Enum that lists the different kinds of instructions in CHIP-8. Check Cowgod's chip8 technical reference for more details
+// Enum that lists the different kinds of instructions in CHIP-8. Check Cowgod's
+// chip8 technical reference for more details
 typedef enum instruction_kind_t {
   SYS_CLS_RET,
   JP,
@@ -26,7 +28,8 @@ typedef enum instruction_kind_t {
   MISC
 } instruction_kind_t;
 
-// Type for storing an instruction. It includes what kind of instruction it is, along with the parameters. Formats include:
+// Type for storing an instruction. It includes what kind of instruction it is,
+// along with the parameters. Formats include:
 // - 0nnn
 // - 0xkk
 // - 0x00
