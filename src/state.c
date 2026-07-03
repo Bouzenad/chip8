@@ -4,6 +4,7 @@
 
 int init_state(system_state_t *state, char *file_name) {
   *state = (system_state_t){0};
+  state->registers.program_counter = MEMORY_PROGRAM_START;
   FILE *program = fopen(file_name, "rb");
   if (program == NULL) {
     return -1;
