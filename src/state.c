@@ -3,11 +3,12 @@
 #include <stdio.h>
 
 int init_state(system_state *state, char *file_name) {
-	*state = (system_state) {0};
-	FILE *program = fopen(file_name, "rb");
-	if (program == NULL) {
-		return -1;
-	}
-	fread(state->memory + MEMORY_PROGRAM_START, sizeof(uint8_t), MEMORY_END - MEMORY_PROGRAM_START, program);
-	return 0;
+  *state = (system_state){0};
+  FILE *program = fopen(file_name, "rb");
+  if (program == NULL) {
+    return -1;
+  }
+  fread(state->memory + MEMORY_PROGRAM_START, sizeof(uint8_t),
+        MEMORY_END - MEMORY_PROGRAM_START, program);
+  return 0;
 }

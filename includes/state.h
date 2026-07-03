@@ -48,9 +48,9 @@ typedef struct system_state {
   uint16_t stack[MAX_STACK_DEPTH];
 } system_state;
 
-// Takes in a pointer for a system_state and returns an initialized state (all
-// data zeroed out, except memory, which will be filled with font data (TO BE
-// DONE))
+// Takes in a pointer for a system_state and a ch8 program,
+// and initialilzes it (all data zeroed out, program data loaded
+// in memory, and font data loaded in (TO BE DONE)
 int init_state(system_state *state, char *file_name);
 
 #endif
