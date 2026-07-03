@@ -30,27 +30,27 @@
 // active)
 // - Sound register (active when non-zero, decrements by 1 at a 60 Hz rate and
 // creates a beeping sound when active)
-typedef struct registers {
+typedef struct registers_t {
   uint16_t program_counter;
   uint16_t address_register;
   uint8_t v_register[GENERAL_REGS_NUMBER];
   uint8_t stack_pointer;
   uint8_t delay_register;
   uint8_t sound_register;
-} registers;
+} registers_t;
 
 // Struct for storing the system's general state, includes registers, memory,
 // stack, and display
-typedef struct system_state {
-  registers registers;
+typedef struct system_state_t {
+  registers_t registers;
   uint8_t memory[MEMORY_SIZE];
   uint8_t display[DISPLAY_HEIGHT][DISPLAY_WIDTH];
   uint16_t stack[MAX_STACK_DEPTH];
-} system_state;
+} system_state_t;
 
-// Takes in a pointer for a system_state and returns an initialized state (all
-// data zeroed out, except memory, which will be filled with font data (TO BE
-// DONE))
-int init_state(system_state *state, char *file_name);
+// Takes in a pointer for a system_state and a ch8 program,
+// and initialilzes it (all data zeroed out, program data loaded
+// in memory, and font data loaded in (TO BE DONE)
+int init_state(system_state_t *state, char *file_name);
 
 #endif
