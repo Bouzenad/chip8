@@ -2,8 +2,8 @@
 #include <stdint.h>
 #include <stdio.h>
 
-int init_state(system_state *state, char *file_name) {
-  *state = (system_state){0};
+int init_state(system_state_t *state, char *file_name) {
+  *state = (system_state_t){0};
   FILE *program = fopen(file_name, "rb");
   if (program == NULL) {
     return -1;
