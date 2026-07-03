@@ -1,8 +1,7 @@
-#include <stdint.h>
-
 #ifndef INSTRUCTION_H
-
 #define INSTRUCTION_H
+
+#include <stdint.h>
 typedef uint16_t opcode_t;
 
 typedef enum instruction_kind_t {

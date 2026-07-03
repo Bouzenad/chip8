@@ -1,8 +1,7 @@
-#include <stdint.h>
-
 #ifndef STATE_H
 #define STATE_H
 
+#include <stdint.h>
 // Size of the address space (4KB)
 #define MEMORY_SIZE 4096
 // Positions of the first memory address, memory address of the first
