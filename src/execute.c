@@ -126,6 +126,40 @@ static int add_rr(system_state_t *state, instruction_t inst) {
   return STATUS_OK;
 }
 
+static int sub(system_state_t *state, instruction_t inst) {
+  // using temporary variables to handle the quirk of one of the operands being
+  // the flag register
+  uint8_t vx = state->registers.v_register[inst.x];
+  uint8_t vy = state->registers.v_register[inst.y];
+  state->registers.v_register[inst.x] = vx - vy;
+  state->registers.v_register[0xf] = vx > vy ? 1 : 0;
+  return STATUS_OK;
+}
+
+static int shr(system_state_t *state, instruction_t inst) {
+  uint8_t vx = state->registers.v_register[inst.x]; 
+  state->registers.v_register[inst.x] >>= 1;
+  state->registers.v_register[0xf] = vx & 1 ? 1 : 0;
+  return STATUS_OK;
+}
+
+static int subn(system_state_t *state, instruction_t inst) {
+  // using temporary variables to handle the quirk of one of the operands being
+  // the flag register
+  uint8_t vx = state->registers.v_register[inst.x];
+  uint8_t vy = state->registers.v_register[inst.y];
+  state->registers.v_register[inst.x] = vy - vx;
+  state->registers.v_register[0xf] = vy > vx ? 1 : 0;
+  return STATUS_OK;
+}
+
+static int shl(system_state_t *state, instruction_t inst) {
+  uint8_t vx = state->registers.v_register[inst.x]; 
+  state->registers.v_register[inst.x] <<= 1;
+  state->registers.v_register[0xf] = vx & 0b1000000 ? 1 : 0;
+  return STATUS_OK;
+}
+
 static int alu_op(system_state_t *state, instruction_t inst) {
   switch (inst.n) {
   case 0x0:
@@ -144,16 +178,16 @@ static int alu_op(system_state_t *state, instruction_t inst) {
     return add_rr(state, inst);
     break;
   case 0x5:
-    return placeholder(state, inst);
+    return sub(state, inst);
     break;
   case 0x6:
-    return placeholder(state, inst);
+    return shr(state, inst);
     break;
   case 0x7:
-    return placeholder(state, inst);
+    return subn(state, inst);
     break;
   case 0xe:
-    return placeholder(state, inst);
+    return shl(state, inst);
     break;
   default:
     return UNKNOWN_INSTRUCTION;
