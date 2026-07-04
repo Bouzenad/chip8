@@ -11,4 +11,6 @@ typedef enum error_code {
 	UNIMPLEMENTED_INSTRUCTION = -6,
 } error_code;
 
+char* get_status_message(error_code code);
+
 #endif
