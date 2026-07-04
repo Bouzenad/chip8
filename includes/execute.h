@@ -4,6 +4,6 @@
 #include "state.h"
 #include "instruction.h"
 
-void execute(system_state_t *state, instruction_t instruction);
+int execute(system_state_t *state, instruction_t instruction);
 
 #endif
