@@ -221,7 +221,7 @@ int execute(system_state_t *state, instruction_t inst) {
     return add_ri(state, inst);
     break;
   case ALU_OP:
-    return placeholder(state, inst);
+    return alu_op(state, inst);
     break;
   case SNE_RR:
     return placeholder(state, inst);
