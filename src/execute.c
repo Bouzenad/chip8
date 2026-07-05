@@ -137,7 +137,7 @@ static int sub(system_state_t *state, instruction_t inst) {
 }
 
 static int shr(system_state_t *state, instruction_t inst) {
-  uint8_t vx = state->registers.v_register[inst.x]; 
+  uint8_t vx = state->registers.v_register[inst.x];
   state->registers.v_register[inst.x] >>= 1;
   state->registers.v_register[0xf] = vx & 1 ? 1 : 0;
   return STATUS_OK;
@@ -154,7 +154,7 @@ static int subn(system_state_t *state, instruction_t inst) {
 }
 
 static int shl(system_state_t *state, instruction_t inst) {
-  uint8_t vx = state->registers.v_register[inst.x]; 
+  uint8_t vx = state->registers.v_register[inst.x];
   state->registers.v_register[inst.x] <<= 1;
   state->registers.v_register[0xf] = vx & 0b1000000 ? 1 : 0;
   return STATUS_OK;
@@ -194,6 +194,27 @@ static int alu_op(system_state_t *state, instruction_t inst) {
   }
 }
 
+static int sne_rr(system_state_t *state, instruction_t inst) {
+  if (state->registers.v_register[inst.x] !=
+      state->registers.v_register[inst.y]) {
+    state->registers.program_counter += 2;
+  }
+  return STATUS_OK;
+}
+
+static int ld_addr(system_state_t *state, instruction_t inst) {
+  state->registers.address_register = inst.nnn;
+  return STATUS_OK;
+}
+
+static int jp_v0(system_state_t *state, instruction_t inst) {
+  state->registers.program_counter = state->registers.v_register[0] + inst.nnn;
+  if (state->registers.program_counter >= MEMORY_SIZE) {
+    return MEMORY_OUT_OF_BOUNDS;
+  }
+  return STATUS_OK;
+}
+
 int execute(system_state_t *state, instruction_t inst) {
   switch (inst.kind) {
   case SYS_CLS_RET:
@@ -224,13 +245,13 @@ int execute(system_state_t *state, instruction_t inst) {
     return alu_op(state, inst);
     break;
   case SNE_RR:
-    return placeholder(state, inst);
+    return sne_rr(state, inst);
     break;
   case LD_ADDR:
-    return placeholder(state, inst);
+    return ld_addr(state, inst);
     break;
   case JP_V0:
-    return placeholder(state, inst);
+    return jp_v0(state, inst);
     break;
   case RND:
     return placeholder(state, inst);
