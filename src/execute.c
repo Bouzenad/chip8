@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 static int placeholder(system_state_t *state, instruction_t inst) {
   printf("%x\n", inst.kind);
@@ -215,6 +216,38 @@ static int jp_v0(system_state_t *state, instruction_t inst) {
   return STATUS_OK;
 }
 
+static int rnd(system_state_t *state, instruction_t inst) {
+  state->registers.v_register[inst.x] = rand() & inst.kk;
+  return STATUS_OK;
+}
+
+static int drw(system_state_t *state, instruction_t inst) {
+  uint16_t addr = state->registers.address_register;
+  uint8_t x = state->registers.v_register[inst.x] % DISPLAY_WIDTH;
+  uint8_t y = state->registers.v_register[inst.y] % DISPLAY_HEIGHT;
+  if (addr + inst.n - 1 >= MEMORY_SIZE) {
+    return MEMORY_OUT_OF_BOUNDS;
+  }
+  state->registers.v_register[0xf] = 0;
+  for (int i = 0; i < inst.n; i++) {
+    if (y + i >= DISPLAY_HEIGHT) {
+      continue;
+    }
+    for (int j = 0; j < 8; j++) {
+      if (x + j >= DISPLAY_WIDTH) {
+        continue;
+      }
+      uint8_t bit = state->display[y+i][x+j];
+      uint8_t mask = (state->memory[addr + i] >> (8 - j - 1)) & 1;
+      if (bit && mask) {
+        state->registers.v_register[0xf] = 1;
+      }
+      state->display[y+i][x+j] = bit ^ mask; 
+    }
+  }
+  return STATUS_OK;
+}
+
 int execute(system_state_t *state, instruction_t inst) {
   switch (inst.kind) {
   case SYS_CLS_RET:
@@ -254,10 +287,10 @@ int execute(system_state_t *state, instruction_t inst) {
     return jp_v0(state, inst);
     break;
   case RND:
-    return placeholder(state, inst);
+    return rnd(state, inst);
     break;
   case DRW:
-    return placeholder(state, inst);
+    return drw(state, inst);
     break;
   case SKP_SKNP:
     return placeholder(state, inst);
