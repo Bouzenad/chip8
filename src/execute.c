@@ -248,6 +248,37 @@ static int drw(system_state_t *state, instruction_t inst) {
   return STATUS_OK;
 }
 
+// Might have to error check for memory out of bounds
+static int skp(system_state_t *state, instruction_t inst) {
+  uint8_t vx = state->registers.v_register[inst.x];
+  if (vx <= 0xf && state->input[vx]) {
+    state->registers.program_counter += 2;
+  }
+  return STATUS_OK;
+}
+
+static int sknp(system_state_t *state, instruction_t inst) {
+  uint8_t vx = state->registers.v_register[inst.x];
+  if (vx <= 0xf && state->input[vx]) {
+    return STATUS_OK; 
+  }
+  state->registers.program_counter += 2;
+  return STATUS_OK;
+}
+
+static int skp_sknp(system_state_t *state, instruction_t inst) {
+  switch (inst.n) {
+    case 0xe: 
+      return skp(state, inst);
+      break;
+    case 0x1:
+      return sknp(state, inst);
+      break;
+    default:
+      return UNKNOWN_INSTRUCTION;
+  }
+}
+
 int execute(system_state_t *state, instruction_t inst) {
   switch (inst.kind) {
   case SYS_CLS_RET:
@@ -293,7 +324,7 @@ int execute(system_state_t *state, instruction_t inst) {
     return drw(state, inst);
     break;
   case SKP_SKNP:
-    return placeholder(state, inst);
+    return skp_sknp(state, inst);
     break;
   case MISC:
     return placeholder(state, inst);
