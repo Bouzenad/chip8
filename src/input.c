@@ -1,12 +1,11 @@
 #include "input.h"
 #include "state.h"
-#include <ncurses.h>
-#include <stdio.h>
 #include <string.h>
 #include <sys/select.h>
 #include <unistd.h>
+#include <ncurses.h>
 
-static int map_to_key(char input) {
+static int map_to_key(int input) {
   switch (input) {
   case '1':
     return 0x1;
@@ -61,24 +60,19 @@ static int map_to_key(char input) {
   }
 }
 
-void* monitor_input(void *arg) {
-  system_state_t *state = (system_state_t *) arg;
-  while (1) {
-    fd_set fds;
-    FD_ZERO(&fds);
-    FD_SET(STDIN_FILENO, &fds);
-    struct timeval time = {0, 8333};
-    int r = select(STDIN_FILENO + 1, &fds, NULL, NULL, &time);
-    if (r == 0) { // timeout
-      memset(state->input, 0, TOTAL_KEY_AMOUNT);
-    } else {
-      char c;
-      read(STDIN_FILENO, &c, 1);
-      int key = map_to_key(c);
-      if (key >= 0) {
-        memset(state->input, 0, TOTAL_KEY_AMOUNT);
-        state->input[key] = 1;
-      }
+void monitor_input(system_state_t *state) {
+  int c;
+  char input_char;
+  int clicked = 0;
+  // Don't you hate it when buffering is implemented, with no easy way of flushing?
+  while ((c = getch()) != ERR) {
+    if (map_to_key(c) >= 0) {
+      clicked = 1;
+      input_char = c;
     }
+  }
+  memset(state->input, 0, TOTAL_KEY_AMOUNT);
+  if (clicked) {
+    state->input[map_to_key(input_char)] = 1;
   }
 }
