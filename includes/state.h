@@ -11,6 +11,7 @@
 #define MEMORY_END 0xFFF
 // Number of general purpose registers
 #define GENERAL_REGS_NUMBER 16
+#define TOTAL_KEY_AMOUNT 16
 
 // Maximum possible number of addresses that can be pushed into the stack
 #define MAX_STACK_DEPTH 16
@@ -45,6 +46,7 @@ typedef struct system_state_t {
   uint8_t memory[MEMORY_SIZE];
   uint8_t display[DISPLAY_HEIGHT][DISPLAY_WIDTH];
   uint16_t stack[MAX_STACK_DEPTH];
+  _Atomic uint8_t input[TOTAL_KEY_AMOUNT];
 } system_state_t;
 
 // Takes in a pointer for a system_state and a ch8 program,
