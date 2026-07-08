@@ -300,6 +300,24 @@ static int add_i(system_state_t *state, instruction_t inst) {
   return STATUS_OK;
 }
 
+static int digit_sprites(system_state_t *state, instruction_t inst) {
+  // Vx should in principle be no larger than 15, but it can be set that way.
+  // I decided to simply make it undefined behavior and not crash the program, in
+  // case a developer wants to go out of spec for some reason.
+  state->registers.address_register = DIGIT_LOCATION + state->registers.v_register[inst.x]*BYTE_PER_DIGIT;
+  return STATUS_OK;
+}
+
+static int bcd(system_state_t *state, instruction_t inst) {
+  if (state->registers.address_register + 2 >= MEMORY_SIZE) {
+    return MEMORY_OUT_OF_BOUNDS;
+  }
+  state->memory[state->registers.address_register] = state->registers.v_register[inst.x] / 100;
+  state->memory[state->registers.address_register + 1] = (state->registers.v_register[inst.x] % 100) / 10;
+  state->memory[state->registers.address_register + 2] = state->registers.v_register[inst.x] % 10;
+  return STATUS_OK;
+}
+
 static int store_in_memory(system_state_t *state, instruction_t inst) {
   if (state->registers.address_register + inst.x >= MEMORY_SIZE) {
     return MEMORY_OUT_OF_BOUNDS;
@@ -318,6 +336,24 @@ static int read_from_memory(system_state_t *state, instruction_t inst) {
 
 static int misc(system_state_t *state, instruction_t inst) {
   switch (inst.kk) {
+    case 0x07:
+      return ld_vx_dt(state, inst);
+    case 0x0A:
+      return ld_vx_k(state, inst);
+    case 0x15:
+      return ld_dt_vx(state, inst);
+    case 0x18:
+      return ld_st_vx(state, inst);
+    case 0x1e:
+      return add_i(state, inst);
+    case 0x29:
+      return digit_sprites(state, inst);
+    case 0x33:
+      return bcd(state, inst);
+    case 0x55:
+      return store_in_memory(state, inst);
+    case 0x65:
+      return read_from_memory(state, inst);
     default:
       return UNKNOWN_INSTRUCTION;
   }
@@ -356,7 +392,7 @@ int execute(system_state_t *state, instruction_t inst) {
   case SKP_SKNP:
     return skp_sknp(state, inst);
   case MISC:
-    return placeholder(state, inst);
+    return misc(state, inst);
   default:
     return UNKNOWN_INSTRUCTION;
   }

@@ -20,6 +20,10 @@
 #define DISPLAY_HEIGHT 32
 #define DISPLAY_WIDTH 64
 
+// Address where digit sprites are located
+#define DIGIT_LOCATION 0x50
+#define BYTE_PER_DIGIT 5
+
 // Struct for holding the different kinds of registers
 // - Program counter holds the index of the next instruction to be executed
 // - Address register is a 16-bit register for holding an arbitrary address
