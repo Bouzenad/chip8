@@ -65,9 +65,6 @@ void monitor_input(system_state_t *state) {
   int c;
   char input_char;
   int clicked = 0;
-  // Using decay to workaround not being able to know whether a button was just pressed
-  // or is being held down. It isn't ideal, but I'm trying my best here.
-  const int positive_edge = 6;
   // Don't you hate it when buffering is implemented, with no easy way of flushing?
   while ((c = getch()) >= 0) {
     if (map_to_key(c) >= 0) {
@@ -82,11 +79,13 @@ void monitor_input(system_state_t *state) {
       state->input[i] -= 1;
     }
   }
+  // Using decay to workaround not being able to know whether a button was just pressed
+  // or is being held down. It isn't ideal, but I'm trying my best here.
   if (clicked) {
     if (state->input[map_to_key(input_char)] == 0) {
-      state->input[map_to_key(input_char)] = positive_edge; 
+      state->input[map_to_key(input_char)] = POS_EDGE; 
     } else {
-      state->input[map_to_key(input_char)] = positive_edge - 1; 
+      state->input[map_to_key(input_char)] = POS_EDGE - 1; 
     }
     // Reset other keys
     for (int j = 0; j < TOTAL_KEY_AMOUNT; j++) {
