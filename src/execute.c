@@ -1,5 +1,6 @@
 #include "execute.h"
 #include "error.h"
+#include "input.h"
 #include "instruction.h"
 #include "state.h"
 
@@ -40,11 +41,11 @@ static int sys_cls_ret(system_state_t *state, instruction_t inst) {
   switch (inst.n) {
   case 0x0:
     return cls(state, inst);
-    break;
   case 0xe:
     return ret(state, inst);
+  default:
+    return UNKNOWN_INSTRUCTION;
   }
-  return UNKNOWN_INSTRUCTION;
 }
 
 static int jp(system_state_t *state, instruction_t inst) {
@@ -165,31 +166,22 @@ static int alu_op(system_state_t *state, instruction_t inst) {
   switch (inst.n) {
   case 0x0:
     return ld_rr(state, inst);
-    break;
   case 0x1:
     return or(state, inst);
-    break;
   case 0x2:
     return and(state, inst);
-    break;
   case 0x3:
     return xor(state, inst);
-    break;
   case 0x4:
     return add_rr(state, inst);
-    break;
   case 0x5:
     return sub(state, inst);
-    break;
   case 0x6:
     return shr(state, inst);
-    break;
   case 0x7:
     return subn(state, inst);
-    break;
   case 0xe:
     return shl(state, inst);
-    break;
   default:
     return UNKNOWN_INSTRUCTION;
   }
@@ -270,10 +262,62 @@ static int skp_sknp(system_state_t *state, instruction_t inst) {
   switch (inst.n) {
     case 0xe: 
       return skp(state, inst);
-      break;
     case 0x1:
       return sknp(state, inst);
-      break;
+    default:
+      return UNKNOWN_INSTRUCTION;
+  }
+}
+
+static int ld_vx_dt(system_state_t *state, instruction_t inst) {
+  state->registers.v_register[inst.x] = state->registers.delay_register;
+  return STATUS_OK;
+}
+
+static int ld_vx_k(system_state_t *state, instruction_t inst) {
+  for (int i = 0; i < TOTAL_KEY_AMOUNT; i++) {
+    if (state->input[i] == POS_EDGE) {
+      state->registers.v_register[inst.x] = i;
+      return STATUS_OK;
+    }
+  }
+  state->registers.program_counter -= 2;
+  return STATUS_OK;
+}
+
+static int ld_dt_vx(system_state_t *state, instruction_t inst) {
+  state->registers.delay_register = state->registers.v_register[inst.x];
+  return STATUS_OK;
+}
+
+static int ld_st_vx(system_state_t *state, instruction_t inst) {
+  state->registers.sound_register = state->registers.v_register[inst.x];
+  return STATUS_OK;
+}
+
+static int add_i(system_state_t *state, instruction_t inst) {
+  state->registers.address_register += state->registers.v_register[inst.x];
+  return STATUS_OK;
+}
+
+static int store_in_memory(system_state_t *state, instruction_t inst) {
+  if (state->registers.address_register + inst.x >= MEMORY_SIZE) {
+    return MEMORY_OUT_OF_BOUNDS;
+  }
+  memcpy(state->memory + state->registers.address_register, state->registers.v_register, inst.x + 1);
+  return STATUS_OK;
+}
+
+static int read_from_memory(system_state_t *state, instruction_t inst) {
+  if (state->registers.address_register + inst.x >= MEMORY_SIZE) {
+    return MEMORY_OUT_OF_BOUNDS;
+  }
+  memcpy(state->registers.v_register, state->memory + state->registers.address_register, inst.x + 1);
+  return STATUS_OK;
+}
+
+static int misc(system_state_t *state, instruction_t inst) {
+  switch (inst.kk) {
     default:
       return UNKNOWN_INSTRUCTION;
   }
@@ -283,52 +327,36 @@ int execute(system_state_t *state, instruction_t inst) {
   switch (inst.kind) {
   case SYS_CLS_RET:
     return sys_cls_ret(state, inst);
-    break;
   case JP:
     return jp(state, inst);
-    break;
   case CALL:
     return call(state, inst);
-    break;
   case SE_RI:
     return se_ri(state, inst);
-    break;
   case SNE_RI:
     return sne_ri(state, inst);
-    break;
   case SE_RR:
     return se_rr(state, inst);
-    break;
   case LD_RI:
     return ld_ri(state, inst);
-    break;
   case ADD_RI:
     return add_ri(state, inst);
-    break;
   case ALU_OP:
     return alu_op(state, inst);
-    break;
   case SNE_RR:
     return sne_rr(state, inst);
-    break;
   case LD_ADDR:
     return ld_addr(state, inst);
-    break;
   case JP_V0:
     return jp_v0(state, inst);
-    break;
   case RND:
     return rnd(state, inst);
-    break;
   case DRW:
     return drw(state, inst);
-    break;
   case SKP_SKNP:
     return skp_sknp(state, inst);
-    break;
   case MISC:
     return placeholder(state, inst);
-    break;
   default:
     return UNKNOWN_INSTRUCTION;
   }
