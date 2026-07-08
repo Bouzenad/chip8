@@ -336,6 +336,24 @@ static int read_from_memory(system_state_t *state, instruction_t inst) {
 
 static int misc(system_state_t *state, instruction_t inst) {
   switch (inst.kk) {
+    case 0x07:
+      return ld_vx_dt(state, inst);
+    case 0x0A:
+      return ld_vx_k(state, inst);
+    case 0x15:
+      return ld_dt_vx(state, inst);
+    case 0x18:
+      return ld_st_vx(state, inst);
+    case 0x1e:
+      return add_i(state, inst);
+    case 0x29:
+      return digit_sprites(state, inst);
+    case 0x33:
+      return bcd(state, inst);
+    case 0x55:
+      return store_in_memory(state, inst);
+    case 0x65:
+      return read_from_memory(state, inst);
     default:
       return UNKNOWN_INSTRUCTION;
   }
@@ -374,7 +392,7 @@ int execute(system_state_t *state, instruction_t inst) {
   case SKP_SKNP:
     return skp_sknp(state, inst);
   case MISC:
-    return placeholder(state, inst);
+    return misc(state, inst);
   default:
     return UNKNOWN_INSTRUCTION;
   }
