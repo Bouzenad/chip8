@@ -3,6 +3,7 @@
 #include <string.h>
 #include <sys/select.h>
 #include <unistd.h>
+#include <stdio.h>
 #include <ncurses.h>
 
 static int map_to_key(int input) {
@@ -64,15 +65,34 @@ void monitor_input(system_state_t *state) {
   int c;
   char input_char;
   int clicked = 0;
+  // Using decay to workaround not being able to know whether a button was just pressed
+  // or is being held down. It isn't ideal, but I'm trying my best here.
+  const int positive_edge = 6;
   // Don't you hate it when buffering is implemented, with no easy way of flushing?
-  while ((c = getch()) != ERR) {
+  while ((c = getch()) >= 0) {
     if (map_to_key(c) >= 0) {
       clicked = 1;
       input_char = c;
     }
   }
-  memset(state->input, 0, TOTAL_KEY_AMOUNT);
+
+  // input handling is literal hell
+  for (int i = 0; i < TOTAL_KEY_AMOUNT; i++) {
+    if (state->input[i] > 0) {
+      state->input[i] -= 1;
+    }
+  }
   if (clicked) {
-    state->input[map_to_key(input_char)] = 1;
+    if (state->input[map_to_key(input_char)] == 0) {
+      state->input[map_to_key(input_char)] = positive_edge; 
+    } else {
+      state->input[map_to_key(input_char)] = positive_edge - 1; 
+    }
+    // Reset other keys
+    for (int j = 0; j < TOTAL_KEY_AMOUNT; j++) {
+      if (j != map_to_key(input_char)) {
+        state->input[j] = 0;
+      }
+    }
   }
 }

@@ -46,7 +46,7 @@ typedef struct system_state_t {
   uint8_t memory[MEMORY_SIZE];
   uint8_t display[DISPLAY_HEIGHT][DISPLAY_WIDTH];
   uint16_t stack[MAX_STACK_DEPTH];
-  _Atomic uint8_t input[TOTAL_KEY_AMOUNT];
+  uint8_t input[TOTAL_KEY_AMOUNT];
 } system_state_t;
 
 // Takes in a pointer for a system_state and a ch8 program,
