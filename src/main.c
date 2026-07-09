@@ -7,6 +7,8 @@
 #include "screen.h"
 #include "input.h"
 #include "parse.h"
+#define MINIAUDIO_IMPLEMENTATION
+#include "miniaudio.h"
 #include <ncurses.h>
 #include <unistd.h>
 
@@ -22,7 +24,22 @@ int main(int argc, char *argv[]) {
   if ((p = init_state(&state, file_path)) < 0) {
     printf("Error happened: %d\n", p);
     return -1;
-  } 
+  }
+  // Setting up sound, boilerplate incoming...
+  ma_engine engine;
+  ma_engine_init(NULL, &engine);
+
+  ma_waveform waveform;
+  ma_waveform_config wc = ma_waveform_config_init(
+        ma_format_f32,
+        ma_engine_get_channels(&engine),
+        ma_engine_get_sample_rate(&engine),
+        ma_waveform_type_sine, 0.2, 440.0
+    );
+  ma_waveform_init(&wc, &waveform);
+
+  ma_sound sound;
+  ma_sound_init_from_data_source(&engine, &waveform, 0, NULL, &sound);
   while (state.registers.program_counter < MEMORY_SIZE) {
     for (int i = 0; i < 8; i++) {
       opcode_t opcode = fetch_next(&state);
@@ -39,7 +56,10 @@ int main(int argc, char *argv[]) {
       state.registers.delay_register--;
     }
     if (state.registers.sound_register > 0) {
+      ma_sound_start(&sound);
       state.registers.sound_register--;
+    } else {
+      ma_sound_stop(&sound);
     }
     draw_screen(state);
     monitor_input(&state);
