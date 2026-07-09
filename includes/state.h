@@ -23,6 +23,7 @@
 // Address where digit sprites are located
 #define DIGIT_LOCATION 0x50
 #define BYTE_PER_DIGIT 5
+#define NUMBER_OF_DIGITS 16
 
 // Struct for holding the different kinds of registers
 // - Program counter holds the index of the next instruction to be executed
