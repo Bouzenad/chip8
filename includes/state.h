@@ -2,6 +2,7 @@
 #define STATE_H
 
 #include <stdint.h>
+#include <stdbool.h>
 // Size of the address space (4KB)
 #define MEMORY_SIZE 4096
 // Positions of the first memory address, memory address of the first
@@ -48,6 +49,10 @@ typedef struct registers_t {
 // frequency, quirks, etc...)
 typedef struct configs_t {
   uint16_t sound_freq;
+  bool vf_reset;
+  bool memory_increment;
+  bool legacy_shift;
+  bool x_jump;
 } configs_t;
 
 // Struct for storing the system's general state, includes registers, memory,

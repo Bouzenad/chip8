@@ -104,16 +104,25 @@ static int ld_rr(system_state_t *state, instruction_t inst) {
 
 static int or(system_state_t *state, instruction_t inst) {
   state->registers.v_register[inst.x] |= state->registers.v_register[inst.y];
+  if (state->configs.vf_reset) {
+    state->registers.v_register[0xf] = 0;
+  }
   return STATUS_OK;
 }
 
 static int and(system_state_t *state, instruction_t inst) {
   state->registers.v_register[inst.x] &= state->registers.v_register[inst.y];
+  if (state->configs.vf_reset) {
+    state->registers.v_register[0xf] = 0;
+  }
   return STATUS_OK;
 }
 
 static int xor(system_state_t *state, instruction_t inst) {
   state->registers.v_register[inst.x] ^= state->registers.v_register[inst.y];
+  if (state->configs.vf_reset) {
+    state->registers.v_register[0xf] = 0;
+  }
   return STATUS_OK;
 }
 
@@ -139,9 +148,15 @@ static int sub(system_state_t *state, instruction_t inst) {
 }
 
 static int shr(system_state_t *state, instruction_t inst) {
-  uint8_t vx = state->registers.v_register[inst.x];
-  state->registers.v_register[inst.x] >>= 1;
-  state->registers.v_register[0xf] = vx & 1 ? 1 : 0;
+  if (state->configs.legacy_shift) {
+    uint8_t vy = state->registers.v_register[inst.y];
+    state->registers.v_register[inst.x] = vy >> 1;
+    state->registers.v_register[0xf] = vy & 1 ? 1 : 0;
+  } else {
+    uint8_t vx = state->registers.v_register[inst.x];
+    state->registers.v_register[inst.x] >>= 1;
+    state->registers.v_register[0xf] = vx & 1 ? 1 : 0;
+  }
   return STATUS_OK;
 }
 
@@ -156,9 +171,15 @@ static int subn(system_state_t *state, instruction_t inst) {
 }
 
 static int shl(system_state_t *state, instruction_t inst) {
-  uint8_t vx = state->registers.v_register[inst.x];
-  state->registers.v_register[inst.x] <<= 1;
-  state->registers.v_register[0xf] = vx & 0b1000000 ? 1 : 0;
+  if (state->configs.legacy_shift) {
+    uint8_t vy = state->registers.v_register[inst.y];
+    state->registers.v_register[inst.x] = vy << 1;
+    state->registers.v_register[0xf] = (vy >> 7) & 1 ? 1 : 0;
+  } else {
+    uint8_t vx = state->registers.v_register[inst.x];
+    state->registers.v_register[inst.x] <<= 1;
+    state->registers.v_register[0xf] = (vx >> 7) & 1 ? 1 : 0;
+  }
   return STATUS_OK;
 }
 
@@ -201,7 +222,11 @@ static int ld_addr(system_state_t *state, instruction_t inst) {
 }
 
 static int jp_v0(system_state_t *state, instruction_t inst) {
-  state->registers.program_counter = state->registers.v_register[0] + inst.nnn;
+  if (state->configs.x_jump) {
+    state->registers.program_counter = state->registers.v_register[inst.x] + inst.nnn;
+  } else {
+    state->registers.program_counter = state->registers.v_register[0] + inst.nnn;
+  }
   if (state->registers.program_counter >= MEMORY_SIZE) {
     return MEMORY_OUT_OF_BOUNDS;
   }
@@ -323,6 +348,10 @@ static int store_in_memory(system_state_t *state, instruction_t inst) {
     return MEMORY_OUT_OF_BOUNDS;
   }
   memcpy(state->memory + state->registers.address_register, state->registers.v_register, inst.x + 1);
+  if (state->configs.memory_increment) {
+    state->registers.address_register += state->registers.v_register[inst.x] + 1;
+    state->registers.address_register &= 0xfff;
+  }
   return STATUS_OK;
 }
 
@@ -331,6 +360,10 @@ static int read_from_memory(system_state_t *state, instruction_t inst) {
     return MEMORY_OUT_OF_BOUNDS;
   }
   memcpy(state->registers.v_register, state->memory + state->registers.address_register, inst.x + 1);
+  if (state->configs.memory_increment) {
+    state->registers.address_register += state->registers.v_register[inst.x] + 1;
+    state->registers.address_register &= 0xfff;
+  }
   return STATUS_OK;
 }
 

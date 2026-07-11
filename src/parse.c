@@ -49,6 +49,14 @@ int set_configs(system_state_t *state, int argc, char* argv[]) {
             if (set_sound_freq(state, argv[i]) < 0) {
                 return -1;
             }
+        } else if (strcmp(substring, "vf-reset") == 0) {
+            state->configs.vf_reset = 1;
+        } else if (strcmp(substring, "memory-increment") == 0) {
+            state->configs.memory_increment = 1;
+        } else if (strcmp(substring, "legacy-shift") == 0) {
+            state->configs.legacy_shift = 1;
+        } else if (strcmp(substring, "x-jump") == 0) {
+            state->configs.x_jump = 1;
         } else {
             return -1;
         } 
