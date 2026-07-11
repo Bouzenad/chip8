@@ -11,4 +11,4 @@ builds:
 	mkdir -p builds
 
 clean:
-	rm -f bouzenadchip8
+	rm -r -f builds
