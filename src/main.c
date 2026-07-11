@@ -61,8 +61,8 @@ int main(int argc, char *argv[]) {
     } else {
       ma_sound_stop(&sound);
     }
-    draw_screen(state);
     monitor_input(&state);
+    draw_screen(state);
     usleep(16667);
   }
   printf("Reached end of memory");

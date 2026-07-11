@@ -1,9 +1,7 @@
 #include "input.h"
 #include "state.h"
-#include <string.h>
 #include <sys/select.h>
 #include <unistd.h>
-#include <stdio.h>
 #include <ncurses.h>
 
 static int map_to_key(int input) {
