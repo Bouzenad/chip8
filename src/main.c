@@ -14,17 +14,26 @@
 
 int main(int argc, char *argv[]) {
   init_screen();
+
+  // Initialize memory, registers, etc...
   system_state_t state;
   int p;
   char* file_path = get_file_path(argc, argv);
   if (file_path == NULL) {
-    printf("Missing or ambiguous file path");
+    printf("Missing or ambiguous file path\n");
     return -1;
   }
   if ((p = init_state(&state, file_path)) < 0) {
     printf("Error happened: %d\n", p);
     return -1;
   }
+  
+  // Read configs from arguments and set them up
+  if (set_configs(&state, argc, argv) < 0) {
+    printf("Invalid arguments\n");
+    return -1;
+  } 
+
   // Setting up sound, boilerplate incoming...
   ma_engine engine;
   ma_engine_init(NULL, &engine);
@@ -34,12 +43,14 @@ int main(int argc, char *argv[]) {
         ma_format_f32,
         ma_engine_get_channels(&engine),
         ma_engine_get_sample_rate(&engine),
-        ma_waveform_type_sine, 0.2, 440.0
+        ma_waveform_type_sine, 0.2, state.configs.sound_freq
     );
   ma_waveform_init(&wc, &waveform);
 
   ma_sound sound;
   ma_sound_init_from_data_source(&engine, &waveform, 0, NULL, &sound);
+
+  // Main execution loop
   while (state.registers.program_counter < MEMORY_SIZE) {
     for (int i = 0; i < 8; i++) {
       opcode_t opcode = fetch_next(&state);
@@ -61,10 +72,10 @@ int main(int argc, char *argv[]) {
     } else {
       ma_sound_stop(&sound);
     }
-    draw_screen(state);
     monitor_input(&state);
+    draw_screen(state);
     usleep(16667);
   }
-  printf("Reached end of memory");
+  printf("Reached end of memory\n");
 	return 0;
 }

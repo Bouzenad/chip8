@@ -5,6 +5,7 @@
 
 int init_state(system_state_t *state, char *file_name) {
   *state = (system_state_t){0};
+  state->configs.sound_freq = 440;
   uint8_t digits[NUMBER_OF_DIGITS * BYTE_PER_DIGIT] = {
       0xf0, 0x90, 0x90, 0x90, 0xf0, // 0
       0x20, 0x60, 0x20, 0x20, 0x70, // 1

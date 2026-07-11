@@ -44,6 +44,12 @@ typedef struct registers_t {
   uint8_t sound_register;
 } registers_t;
 
+// Struct for storing configurations related to the system (eg. sounds
+// frequency, quirks, etc...)
+typedef struct configs_t {
+  uint16_t sound_freq;
+} configs_t;
+
 // Struct for storing the system's general state, includes registers, memory,
 // stack, and display
 typedef struct system_state_t {
@@ -52,6 +58,7 @@ typedef struct system_state_t {
   uint8_t display[DISPLAY_HEIGHT][DISPLAY_WIDTH];
   uint16_t stack[MAX_STACK_DEPTH];
   uint8_t input[TOTAL_KEY_AMOUNT];
+  configs_t configs;
 } system_state_t;
 
 // Takes in a pointer for a system_state and a ch8 program,
