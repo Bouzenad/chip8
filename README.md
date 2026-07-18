@@ -1,5 +1,6 @@
 # chip8
 My personal implementation of the CHIP-8 specification. Other than ncurses, it requires no external dependencies to run.
+The emulator works well with all ROMs I've found online, and passes Timendus' test suite for base CHIP-8.
 THIS EMULATOR DOES NOT IMPLEMENT SUPER CHIP-48
 
 # How to build
