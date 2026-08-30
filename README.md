@@ -5,13 +5,13 @@ THIS EMULATOR DOES NOT IMPLEMENT SUPER CHIP-48
 
 # How to build
 - Clone the repository using
- $ git clone https://github.com/Bouzenad/chip8
+ `git clone https://github.com/Bouzenad/chip8`
 - Make sure you have ncurses installed. If you don't install it using your distro's package manager.
 - Build the binary using
- $ make
+ `make`
 - Enter the new 'builds' directory, and behold, there is your binary!
 - (Optional) You can remove the build directory along with whatever is in it with
- $ make clean
+ `make clean`
 
 # How to use
 - Use the (1, 2, 3, 4, q, w, e, r, a, s, d, f, z, x, c, v) letters on your keyboard for input. They're analogous to the keypads used in the original CHIP-8 implementations (check Cowgod's reference).
@@ -35,7 +35,7 @@ THIS EMULATOR DOES NOT IMPLEMENT SUPER CHIP-48
 - Miniaudio by David Reid
 - Make
 
-# Challenges and design decisions
+# Some details
 
 - The CHIP-8 specification requires that the sound and delay timers each decrement at 60Hz. the CPU frequency, however, has no canonical value. A common value I see around is 500Hz, however I decided to settle on 480Hz, on average. The reason is that it's a nice multiple of 60Hz, so 8 instructions are executed in each timer cycle. I could've chosen 500Hz, but I would've had to make the instruction count in each clock cycle vary between 8, 9, or 10, and the code more complex by calculating remainder time at each cycle, accumulate it, blah blah blah... I decided it isn't worth it, since the clock frequency varies between implementations from 300Hz all the way to 1000Hz anyway, so the difference between 500 and 480 is barely noticeable.
 
